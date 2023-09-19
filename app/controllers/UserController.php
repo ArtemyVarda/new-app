@@ -20,11 +20,17 @@ class UserController extends InitController
                         }
                     ],
                     [
-                        'actions' => ['profile', 'logout'],
+                        'actions' => ['profile', 'logout', 'delete'],
                         'roles' => [UserOperation::RoleUser, UserOperation::RoleAdmin],
                         'matchCallback' => function () {
                             $this->redirect('/user/login');
                         }
+                    ],
+                    [ 'action'=>['users'],
+                      'roles'=>[UserOperation::RoleAdmin],
+                      'matchCallback'=>function() {
+                            $this->redirect('/user/profile');
+                            }
                     ]
                 ]
             ]
@@ -123,5 +129,16 @@ class UserController extends InitController
         }
         $params = require 'app/config/params.php';
         $this->redirect('/' . $params['defaultController'] . '/' . $params['defaultAction']);
+    }
+    public function actionUsers(){
+        $this->view->title='Пользователи';
+        $user_model = new UserModel();
+        $users=$user_model->getListUsers();
+
+        $this->render('users',[
+            'sidebar'=>UserOperation::getMenuLinks(),
+            'users'=> $users,
+            'role'=>UserOperation::getRoleUser(),
+        ]);
     }
 }
